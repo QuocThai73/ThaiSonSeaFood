@@ -61,31 +61,12 @@
         justify-content: center;
       "
     >
-      <div
-        class="checkout-modal-content"
-        style="
-          background: #fff;
-          padding: 24px 32px;
-          border-radius: 10px;
-          max-width: 350px;
-          width: 90%;
-          position: relative;
-        "
-      >
+      <div class="checkout-modal-content">
         <button
           type="button"
           class="close-modal-btn"
           onclick="closeCheckoutModal()"
           aria-label="Đóng"
-          style="
-            position: absolute;
-            top: 8px;
-            right: 12px;
-            font-size: 20px;
-            background: none;
-            border: none;
-            cursor: pointer;
-          "
         >
           &times;
         </button>
@@ -109,7 +90,6 @@
             type="tel"
             id="checkout-phone"
             required
-            pattern="0[0-9]{9,10}"
             placeholder="Nhập số điện thoại"
             style="width: 100%; margin-bottom: 10px"
           />
