@@ -35,8 +35,15 @@
           >🛒<span id="cart-item-count" class="cart-count">0</span></a
         >
         <!-- Thêm vào vị trí phù hợp trong header -->
-        <button id="logoutBtn" style="display:none; margin-left:16px;">Đăng xuất</button>
-        <a href="admin.html" id="adminBtn" style="display:none; margin-left:16px;">Quản lý</a>
+        <a id="logoutBtn" href="#" style="display: none; margin-left: 16px"
+          >Đăng xuất</a
+        >
+        <a
+          href="admin.html"
+          id="adminBtn"
+          style="display: none; margin-left: 16px"
+          >Quản lý</a
+        >
       </nav>
     </header>
 
@@ -160,25 +167,41 @@
         });
       }
 
+      // Hàm loại bỏ dấu tiếng Việt
+      function removeVietnameseTones(str) {
+        return str
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/đ/g, "d")
+          .replace(/Đ/g, "D");
+      }
+
       /**
        * Filters and sorts products based on current selections.
        * Modified to only use search term for filtering on homepage.
        */
       function applyFiltersAndSorting() {
-        const searchTerm = searchBox.value.toLowerCase();
+        const searchTerm = removeVietnameseTones(
+          searchBox.value.trim().toLowerCase()
+        );
 
-        let filtered = [...productsData]; // Start with a fresh copy of all products
+        let filtered = [...productsData];
 
-        // Filter by search term
         if (searchTerm) {
-          filtered = filtered.filter(
-            (p) =>
-              p.name.toLowerCase().includes(searchTerm) ||
-              p.category.toLowerCase().includes(searchTerm)
+          // Tìm tất cả sản phẩm có tên không dấu trùng hoàn toàn với từ khóa
+          const exactMatches = filtered.filter(
+            (p) => removeVietnameseTones(p.name.toLowerCase()) === searchTerm
           );
+          if (exactMatches.length > 0) {
+            filtered = exactMatches;
+          } else {
+            // Nếu không có tên trùng hoàn toàn, lọc các sản phẩm có tên chứa từ khóa không dấu
+            filtered = filtered.filter((p) =>
+              removeVietnameseTones(p.name.toLowerCase()).includes(searchTerm)
+            );
+          }
         }
 
-        // No category or price sorting on homepage anymore
         displayedProducts = filtered;
         renderProducts(displayedProducts);
       }
@@ -257,9 +280,9 @@
        * Lấy sản phẩm từ database và chèn vào đầu mảng productsData
        */
       function fetchProductsFromDB() {
-        fetch('get-products.php')
-          .then(response => response.json())
-          .then(dbProducts => {
+        fetch("get-products.php")
+          .then((response) => response.json())
+          .then((dbProducts) => {
             productsData = dbProducts;
             applyFiltersAndSorting();
           })
@@ -288,39 +311,35 @@
 
       // Initial render and cart count update when the page loads
 
-
-
-      
       window.onload = () => {
         applyFiltersAndSorting();
         updateCartCount();
         fetchProductsFromDB();
 
-        const userId = localStorage.getItem('user_id');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const adminBtn = document.getElementById('adminBtn');
+        const userId = localStorage.getItem("user_id");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const adminBtn = document.getElementById("adminBtn");
         if (userId) {
-          document.querySelectorAll('.dropdown').forEach(el => el.style.display = 'none');
-          if (logoutBtn) logoutBtn.style.display = 'inline-block';
+          document
+            .querySelectorAll(".dropdown")
+            .forEach((el) => (el.style.display = "none"));
+          if (logoutBtn) logoutBtn.style.display = "inline-block";
           // Hiện nút quản lý nếu là admin
-          if (userId === 'U001' && adminBtn) adminBtn.style.display = 'inline-block';
-          else if (adminBtn) adminBtn.style.display = 'none';
+          if (userId === "U001" && adminBtn)
+            adminBtn.style.display = "inline-block";
+          else if (adminBtn) adminBtn.style.display = "none";
         } else {
-          if (logoutBtn) logoutBtn.style.display = 'none';
-          if (adminBtn) adminBtn.style.display = 'none';
+          if (logoutBtn) logoutBtn.style.display = "none";
+          if (adminBtn) adminBtn.style.display = "none";
         }
       };
 
       // Xử lý đăng xuất
-      document.getElementById('logoutBtn').onclick = function() {
-        localStorage.removeItem('user_id');
+      document.getElementById("logoutBtn").onclick = function () {
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("shoppingCart"); // Xóa giỏ hàng khi đăng xuất
         location.reload();
       };
-
-      // Gọi hàm testMySQLConnection khi trang vừa load
-      window.addEventListener("DOMContentLoaded", testMySQLConnection);
-
-
     </script>
   </body>
 </html>

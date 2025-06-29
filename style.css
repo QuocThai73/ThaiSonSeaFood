@@ -275,6 +275,28 @@ footer {
     opacity: 1;
     visibility: visible;
 }
+/* Logout button styling */
+#logoutBtn {
+    background: none;
+    color: #fff;
+    border: none;
+    border-radius: 0;
+    padding: 0 8px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 16px;
+    box-shadow: none;
+    display: none;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+#logoutBtn:hover {
+    color: #ffb703;
+    background: none;
+    transform: none;
+    text-decoration: underline;
+}
 /* Responsive adjustments */
 @media (max-width: 768px) {
     header {
