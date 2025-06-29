@@ -12,6 +12,55 @@
     </button>
     <div id="orders-list"></div>
 
+    <div id="edit-order-modal" class="modal-overlay">
+      <div class="modal-content">
+        <button
+          type="button"
+          class="close-modal-btn"
+          onclick="closeEditOrderModal()"
+          aria-label="Đóng"
+        >
+          &times;
+        </button>
+        <h3 class="modal-title">Sửa đơn hàng</h3>
+        <form id="edit-order-form" autocomplete="off">
+          <input type="hidden" id="edit-order-id" />
+          <label for="edit-order-address">Địa chỉ mới</label>
+          <input
+            type="text"
+            id="edit-order-address"
+            required
+            placeholder="Nhập địa chỉ nhận hàng"
+          />
+
+          <label for="edit-order-phone">Số điện thoại mới</label>
+          <input
+            type="text"
+            id="edit-order-phone"
+            required
+            placeholder="Nhập số điện thoại"
+          />
+
+          <label for="edit-order-method">Phương thức nhận hàng</label>
+          <select id="edit-order-method" required>
+            <option value="tới lấy">Tới lấy tại cửa hàng</option>
+            <option value="vận chuyển">Vận chuyển tận nơi</option>
+          </select>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              onclick="closeEditOrderModal()"
+              class="delete-btn"
+            >
+              Hủy
+            </button>
+            <button type="submit" class="edit-btn">Lưu</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <script>
       // Chỉ cho phép admin truy cập
       if (localStorage.getItem("user_id") !== "U001") {
@@ -45,6 +94,7 @@
               <th>SĐT</th>
               <th>Phương thức</th>
               <th>Chi tiết</th>
+              <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
@@ -70,11 +120,22 @@
                   o.order_id
                 })" class="edit-btn">Xem</button>
               </td>
+              <td>
+                <button onclick="editOrder(${
+                  o.order_id
+                })" class="edit-btn">Sửa</button>
+                <button onclick="deleteOrder(${
+                  o.order_id
+                })" class="delete-btn">Xoá</button>
+                <button onclick="printOrder(${
+                  o.order_id
+                })" class="print-btn">In</button>
+              </td>
             </tr>
             <tr id="details-${
               o.order_id
             }" style="display:none;background:#f6faff">
-              <td colspan="8">
+              <td colspan="9">
                 <div>
                   <b>Chi tiết đơn hàng:</b>
                   <ul style="margin:8px 0 0 16px;padding:0;">
@@ -94,6 +155,13 @@
                       )
                       .join("")}
                   </ul>
+                  <div style="margin-top:12px;font-weight:bold;color:#0077b6;">
+                    Tổng giá trị đơn hàng: ${
+                      o.total
+                        ? Number(o.total).toLocaleString("vi-VN") + "đ"
+                        : ""
+                    }
+                  </div>
                 </div>
               </td>
             </tr>
@@ -107,6 +175,125 @@
         const row = document.getElementById("details-" + orderId);
         if (row.style.display === "none") row.style.display = "";
         else row.style.display = "none";
+      };
+
+      window.editOrder = function (orderId) {
+        // Lấy dữ liệu từ bảng để điền vào modal
+        const row = document.getElementById("details-" + orderId);
+        const mainRow = row.previousElementSibling;
+        const tds = mainRow.querySelectorAll("td");
+        document.getElementById("edit-order-id").value = orderId;
+        document.getElementById("edit-order-address").value =
+          tds[4]?.innerText || "";
+        document.getElementById("edit-order-phone").value =
+          tds[5]?.innerText || "";
+        document.getElementById("edit-order-method").value =
+          tds[6]?.innerText || "tới lấy";
+        document.getElementById("edit-order-modal").style.display = "flex";
+      };
+
+      window.closeEditOrderModal = function () {
+        document.getElementById("edit-order-modal").style.display = "none";
+      };
+
+      document.getElementById("edit-order-form").onsubmit = function (e) {
+        e.preventDefault();
+        const order_id = document.getElementById("edit-order-id").value;
+        const address = document.getElementById("edit-order-address").value;
+        const phone = document.getElementById("edit-order-phone").value;
+        const method = document.getElementById("edit-order-method").value;
+        fetch("edit-order.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ order_id, address, phone, method }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              alert("Cập nhật đơn hàng thành công!");
+              closeEditOrderModal();
+              fetchOrders();
+            } else {
+              alert("Cập nhật thất bại: " + (data.message || ""));
+            }
+          })
+          .catch(() => alert("Không thể kết nối server!"));
+      };
+
+      window.deleteOrder = function (orderId) {
+        if (confirm("Bạn có chắc muốn xoá đơn hàng #" + orderId + " không?")) {
+          fetch("delete-order.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ order_id: orderId }),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.success) {
+                alert("Đã xoá đơn hàng!");
+                fetchOrders();
+              } else {
+                alert("Xoá thất bại: " + (data.message || ""));
+              }
+            })
+            .catch(() => alert("Không thể kết nối server!"));
+        }
+      };
+
+      window.printOrder = function (orderId) {
+        // Lấy dữ liệu đơn hàng từ bảng hiện tại
+        const row = document.getElementById("details-" + orderId);
+        const mainRow = row.previousElementSibling;
+        if (row && mainRow) {
+          const tds = mainRow.querySelectorAll("td");
+          const info = {
+            order_id: orderId,
+            // Lấy tên khách hàng, bỏ phần ID trong ngoặc
+            customer: (
+              tds[1]?.innerText.replace(/\s*\(.*?\)$/, "") || ""
+            ).trim(),
+            date: tds[2]?.innerText || "",
+            total: tds[3]?.innerText || "",
+            address: tds[4]?.innerText || "",
+            phone: tds[5]?.innerText || "",
+            method: tds[6]?.innerText || "",
+          };
+
+          const printWindow = window.open("", "_blank");
+          printWindow.document.write(
+            "<html><head><title>In đơn hàng #" + info.order_id + "</title>"
+          );
+          printWindow.document.write(
+            '<link rel="stylesheet" href="admin.css"/>'
+          );
+          printWindow.document.write("</head><body>");
+          printWindow.document.write(
+            "<h2>Đơn hàng #" + info.order_id + "</h2>"
+          );
+          printWindow.document.write(
+            "<div><b>Khách hàng:</b> " + info.customer + "</div>"
+          );
+          printWindow.document.write(
+            "<div><b>Ngày đặt:</b> " + info.date + "</div>"
+          );
+          printWindow.document.write(
+            "<div><b>Địa chỉ:</b> " + info.address + "</div>"
+          );
+          printWindow.document.write(
+            "<div><b>Số điện thoại:</b> " + info.phone + "</div>"
+          );
+          printWindow.document.write(
+            "<div><b>Phương thức nhận hàng:</b> " + info.method + "</div>"
+          );
+          printWindow.document.write(
+            "<div><b>Tổng tiền:</b> " + info.total + "</div>"
+          );
+          printWindow.document.write("<hr>");
+          printWindow.document.write(row.innerHTML);
+          printWindow.document.write("</body></html>");
+          printWindow.document.close();
+          printWindow.print();
+        }
       };
 
       fetchOrders();

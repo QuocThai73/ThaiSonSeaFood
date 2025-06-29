@@ -3,10 +3,13 @@ body {
   background: #f6faff;
   margin: 0;
   padding: 0;
+  min-height: 100vh;
 }
 h2 {
   text-align: center;
   margin-top: 24px;
+  color: #0077b6;
+  margin-bottom: 32px;
 }
 .products {
   display: grid;
@@ -94,25 +97,45 @@ button:hover {
   background: #e63946;
   color: #fff;
   border: none;
-  padding: 4px 10px;
-  border-radius: 4px;
+  padding: 6px 12px;
+  border-radius: 5px;
+  margin: 2px;
   cursor: pointer;
   transition: background 0.2s;
 }
 .delete-btn:hover {
   background: #b81d24;
 }
+.edit-btn, .delete-btn, .print-btn {
+    min-width: 64px;
+    padding: 7px 0;
+    margin: 2px 2px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    display: inline-block;
+    text-align: center;
+}
 .edit-btn {
-  background: #ffb703;
-  color: #222;
-  border: none;
-  padding: 4px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.2s;
+  background: #00b4d8;
+  color: #fff;
 }
 .edit-btn:hover {
-  background: #e09f3e;
+  background: #0077b6;
+}
+.print-btn {
+  background: #43aa8b;
+  color: #fff;
+}
+.print-btn:hover {
+  background: #27736b;
+}
+td:last-child {
+    text-align: center;
+    vertical-align: middle;
 }
 #edit-modal {
   display: none;
@@ -275,4 +298,181 @@ button:hover {
 }
 #add-modal .close-btn:hover {
   color: #e63946;
+}
+.admin-container {
+  max-width: 1100px;
+  margin: 36px auto 0 auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px #0002;
+  padding: 32px 24px 40px 24px;
+}
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+.admin-actions button,
+.edit-btn,
+.delete-btn,
+.print-btn {
+  min-width: 170px;
+  max-width: 220px;
+  width: 180px;
+  padding: 12px 0;
+  font-size: 1.08em;
+  font-weight: 600;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #0001;
+  margin: 0;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  display: inline-block;
+  text-align: center;
+  letter-spacing: 0.2px;
+  background: #00b4d8;
+  color: #fff;
+}
+.delete-btn {
+  background: #e63946;
+  color: #fff;
+}
+.delete-btn:hover {
+  background: #b81d24;
+}
+.edit-btn:hover {
+  background: #0077b6;
+}
+@media (max-width: 700px) {
+  .admin-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .admin-actions button,
+  .edit-btn,
+  .delete-btn,
+  .print-btn {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+}
+
+/* Đảm bảo label và input đều nhau */
+label {
+  font-size: 1em;
+  font-weight: 500;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  display: block;
+  color: #222;
+}
+input[type="text"],
+input[type="number"],
+input[type="file"] {
+  font-size: 1em;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  padding: 8px 10px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 8px;
+}
+span {
+  font-size: 1em;
+  color: #222;
+  margin-left: 4px;
+}
+.modal-overlay {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0; top: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.25);
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay[style*="display: flex"] {
+  display: flex !important;
+}
+.modal-content {
+  background: #fff;
+  border-radius: 12px;
+  max-width: 370px;
+  width: 95%;
+  margin: auto;
+  padding: 32px 28px 24px 28px;
+  position: relative;
+  box-shadow: 0 6px 32px #0002;
+  font-size: 1.08em;
+  animation: fadeInModal 0.25s;
+}
+@keyframes fadeInModal {
+  from { opacity: 0; transform: translateY(40px);}
+  to { opacity: 1; transform: none;}
+}
+.close-modal-btn {
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  font-size: 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #0077b6;
+  transition: color 0.2s;
+  z-index: 2;
+}
+.close-modal-btn:hover {
+  color: #e63946;
+}
+.modal-title {
+  margin-top: 0;
+  margin-bottom: 18px;
+  font-size: 1.35em;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  color: #0077b6;
+  text-align: center;
+}
+#edit-order-form label {
+  color: #222;
+  font-weight: 500;
+  margin-bottom: 6px;
+  margin-top: 10px;
+  display: block;
+  letter-spacing: 0.2px;
+}
+#edit-order-form input,
+#edit-order-form select {
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1.5px solid #e0f7fa;
+  border-radius: 6px;
+  font-size: 1em;
+  background: #e0f7fa;
+  color: #222;
+  transition: border 0.2s, background 0.2s;
+  outline: none;
+  box-sizing: border-box;
+}
+#edit-order-form input:focus,
+#edit-order-form select:focus {
+  border-color: #00b4d8;
+  background: #fff;
+}
+#edit-order-form input::placeholder {
+  color: #888;
+  opacity: 1;
+}
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 10px;
 }

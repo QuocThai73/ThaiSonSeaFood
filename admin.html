@@ -6,29 +6,29 @@
     <link rel="stylesheet" href="admin.css" />
   </head>
   <body>
-    <h2>Khu vực quản trị sản phẩm</h2>
-    <button onclick="location.href='webthuysanthaison.html'">
-      Về trang chủ
-    </button>
-    <button id="add-product-btn" class="edit-btn" style="margin-left: 12px">
-      + Thêm sản phẩm
-    </button>
-    <button
-      id="delete-selected-btn"
-      class="delete-btn"
-      style="margin-left: 12px"
-    >
-      Xóa các sản phẩm đã chọn
-    </button>
-    <button
-      id="view-orders-btn"
-      class="edit-btn"
-      style="margin-left: 12px"
-      onclick="location.href='admin-orders.html'"
-    >
-      Xem đơn hàng
-    </button>
-    <div id="admin-products"></div>
+    <div class="admin-container">
+      <h2>Khu vực quản trị sản phẩm</h2>
+      <div class="admin-actions">
+        <button
+          onclick="location.href='webthuysanthaison.html'"
+          class="edit-btn"
+        >
+          Về trang chủ
+        </button>
+        <button id="add-product-btn" class="edit-btn">+ Thêm sản phẩm</button>
+        <button id="delete-selected-btn" class="delete-btn">
+          Xóa các sản phẩm đã chọn
+        </button>
+        <button
+          id="view-orders-btn"
+          class="edit-btn"
+          onclick="location.href='admin-orders.html'"
+        >
+          Xem đơn hàng
+        </button>
+      </div>
+      <div id="admin-products"></div>
+    </div>
 
     <!-- Modal thêm sản phẩm -->
     <div id="add-modal" style="display: none">
