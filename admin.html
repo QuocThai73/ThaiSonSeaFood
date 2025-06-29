@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quản lý sản phẩm - Admin</title>
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <h2>Khu vực quản trị sản phẩm</h2>
+  <button onclick="location.href='webthuysanthaison.html'">Về trang chủ</button>
+  <button id="add-product-btn" class="edit-btn" style="margin-left:12px;">+ Thêm sản phẩm</button>
+  <button id="delete-selected-btn" class="delete-btn" style="margin-left:12px;">Xóa các sản phẩm đã chọn</button>
+  <div id="admin-products"></div>
+
+  <!-- Modal thêm sản phẩm -->
+  <div id="add-modal" style="display:none;">
+    <div class="modal-content">
+      <button type="button" class="close-btn" onclick="closeAddModal()">&times;</button>
+      <h3>Thêm sản phẩm mới</h3>
+      <form id="add-form" autocomplete="off">
+        <label>Tên sản phẩm
+          <input type="text" id="add-name" required />
+        </label>
+        <label>Giá
+          <div style="display:flex;align-items:center;">
+            <input type="text" id="add-price" required autocomplete="off" inputmode="numeric" pattern="[0-9.]*" style="flex:1;" />
+            <span style="margin-left:4px;">đ</span>
+          </div>
+        </label>
+        <label>Chọn ảnh
+          <input type="file" id="add-img-file" accept="image/*" required />
+        </label>
+        <img id="add-preview-img" src="" alt="Xem trước ảnh" style="max-width:100px;display:none;margin-top:8px;">
+        <label>Mô tả
+          <input type="text" id="add-category" />
+        </label>
+        <div class="modal-actions">
+          <button type="button" onclick="closeAddModal()">Hủy</button>
+          <button type="submit" class="edit-btn">Thêm</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal sửa sản phẩm -->
+  <div id="edit-modal" style="display:none;">
+    <div class="modal-content">
+      <button type="button" class="close-btn" onclick="closeEditModal()">&times;</button>
+      <h3>Sửa sản phẩm</h3>
+      <form id="edit-form" autocomplete="off">
+        <input type="hidden" id="edit-id" />
+        <label>Tên sản phẩm
+          <input type="text" id="edit-name" required />
+        </label>
+        <label>Giá
+          <div style="display:flex;align-items:center;">
+            <input type="text" id="edit-price" required autocomplete="off" inputmode="numeric" pattern="[0-9.]*" style="flex:1;" />
+            <span style="margin-left:4px;">đ</span>
+          </div>
+        </label>
+        <label>Chọn ảnh mới
+          <input type="file" id="edit-img-file" accept="image/*" />
+        </label>
+        <img id="preview-img" src="" alt="Xem trước ảnh" style="max-width:100px;display:none;margin-top:8px;">
+        <label>Mô tả
+          <input type="text" id="edit-category" />
+        </label>
+        <div class="modal-actions">
+          <button type="button" onclick="closeEditModal()">Hủy</button>
+          <button type="submit" class="edit-btn">Lưu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+  // Kiểm tra quyền admin (user_id phải là U001)
+  if (localStorage.getItem('user_id') !== 'U001') {
+    alert('Bạn không có quyền truy cập!');
+    location.href = 'webthuysanthaison.html';
+  }
+
+  let productsCache = [];
+
+  function fetchProducts() {
+    fetch('get-products.php')
+      .then(res => res.json())
+      .then(products => {
+        productsCache = products;
+        renderAdminProducts(products);
+      });
+  }
+
+  function renderAdminProducts(products) {
+    const div = document.getElementById('admin-products');
+    if (!products.length) {
+      div.innerHTML = '<p>Chưa có sản phẩm nào.</p>';
+      return;
+    }
+    div.innerHTML = `
+      <table class="product-list">
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="select-all"></th>
+            <th>Ảnh</th>
+            <th>Tên sản phẩm</th>
+            <th>Giá</th>
+            <th>Mã SP</th>
+            <th>Sửa</th>
+            <th>Xóa</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${products.map(p => `
+            <tr>
+              <td><input type="checkbox" class="delete-checkbox" value="${p.id}"></td>
+              <td><img src="${p.img ? p.img : 'product-image.php?id=' + encodeURIComponent(p.id)}" alt="${p.name}" style="max-width:80px"></td>
+              <td class="product-name">${p.name}</td>
+              <td>${p.price ? Math.round(p.price).toLocaleString('vi-VN') : ''}đ</td>
+              <td>${p.id}</td>
+              <td>
+                <button onclick="openEditModal('${p.id}')" class="edit-btn">Sửa</button>
+              </td>
+              <td>
+                <button onclick="deleteProduct('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="delete-btn">Xóa</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+    document.getElementById('select-all').onclick = function() {
+      const checked = this.checked;
+      document.querySelectorAll('.delete-checkbox').forEach(cb => cb.checked = checked);
+    };
+  }
+  window.openEditModal = openEditModal;
+
+  function deleteProduct(productId, productName) {
+    if (!confirm(`Bạn có chắc chắn muốn xóa sản phẩm "${productName}"? Hành động này không thể hoàn tác!`)) return;
+    fetch('delete-product.php', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        id: productId,
+        user_id: localStorage.getItem('user_id')
+      })
+    })
+    .then(res => res.json())
+    .then(result => {
+      alert(result.message);
+      fetchProducts();
+    });
+  }
+
+  function deleteSelectedProducts() {
+    const checked = Array.from(document.querySelectorAll('.delete-checkbox:checked'));
+    if (checked.length === 0) {
+      alert('Vui lòng chọn ít nhất một sản phẩm để xóa!');
+      return;
+    }
+    if (!confirm('Bạn có chắc chắn muốn xóa các sản phẩm đã chọn? Hành động này không thể hoàn tác!')) return;
+    function deleteNext(i) {
+      if (i >= checked.length) {
+        fetchProducts();
+        return;
+      }
+      const tr = checked[i].closest('tr');
+      const id = checked[i].value;
+      const name = tr.querySelector('.product-name').textContent;
+      fetch('delete-product.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          id: id,
+          user_id: localStorage.getItem('user_id')
+        })
+      })
+      .then(res => res.json())
+      .then(() => deleteNext(i + 1));
+    }
+    deleteNext(0);
+  }
+
+  // Thêm sản phẩm
+  document.getElementById('add-product-btn').onclick = function() {
+    document.getElementById('add-form').reset();
+    document.getElementById('add-preview-img').style.display = 'none';
+    document.getElementById('add-modal').style.display = 'flex';
+  };
+  function closeAddModal() {
+    document.getElementById('add-modal').style.display = 'none';
+  }
+  document.getElementById('add-img-file').onchange = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      document.getElementById('add-preview-img').src = evt.target.result;
+      document.getElementById('add-preview-img').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  };
+  document.getElementById('add-form').onsubmit = function(e) {
+    e.preventDefault();
+    const name = document.getElementById('add-name').value;
+    const price = document.getElementById('add-price').value.replace(/\./g, '');
+    const category = document.getElementById('add-category').value;
+    const fileInput = document.getElementById('add-img-file');
+    const file = fileInput.files[0];
+
+    if (!file) {
+      alert('Vui lòng chọn ảnh sản phẩm!');
+      return;
+    }
+
+    // Bước 1: Gửi thông tin sản phẩm để lấy product_id
+    fetch('add-product.php', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        name, price, category,
+        user_id: localStorage.getItem('user_id')
+      })
+    })
+    .then(res => res.json())
+    .then(result => {
+      if (result.success && result.product_id) {
+        // Bước 2: Upload ảnh với product_id vừa nhận
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('product_id', result.product_id);
+        fetch('upload-image.php', {
+          method: 'POST',
+          body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            // Gọi API cập nhật trường img cho sản phẩm vừa tạo
+            fetch('edit-product.php', {
+              method: 'POST',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                id: result.product_id,
+                img: data.url,
+                user_id: localStorage.getItem('user_id')
+              })
+            })
+            .then(res => res.json())
+            .then(updateResult => {
+              if (updateResult.success) {
+                alert('Đã thêm sản phẩm thành công!');
+                closeAddModal();
+                fetchProducts();
+              } else {
+                alert(updateResult.message || 'Lỗi khi cập nhật ảnh sản phẩm!');
+              }
+            });
+          } else {
+            alert('Lỗi upload ảnh: ' + data.message);
+          }
+        });
+      } else {
+        alert(result.message || 'Thêm sản phẩm thất bại!');
+      }
+    });
+  };
+
+  // Định dạng giá khi nhập ở modal thêm sản phẩm
+  document.getElementById('add-price').addEventListener('input', function(e) {
+    // Chỉ giữ lại số
+    let value = this.value.replace(/\D/g, '');
+    // Thêm dấu chấm hàng nghìn
+    value = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    this.value = value;
+  });
+
+  window.deleteProduct = deleteProduct;
+  document.getElementById('delete-selected-btn').onclick = deleteSelectedProducts;
+
+  fetchProducts();
+
+  function openEditModal(productId) {
+    const p = productsCache.find(x => String(x.id) === String(productId));
+    if (!p) return;
+    document.getElementById('edit-id').value = p.id;
+    document.getElementById('edit-name').value = p.name;
+    document.getElementById('edit-price').value = p.price ? Math.round(p.price).toLocaleString('vi-VN') : '';
+    document.getElementById('edit-category').value = p.description || '';
+    document.getElementById('preview-img').src = p.img ? p.img : '';
+    document.getElementById('preview-img').style.display = p.img ? 'block' : 'none';
+    document.getElementById('edit-img-file').value = '';
+    document.getElementById('edit-modal').style.display = 'flex';
+  }
+  function closeEditModal() {
+    document.getElementById('edit-modal').style.display = 'none';
+  }
+  document.getElementById('edit-img-file').onchange = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      document.getElementById('preview-img').src = evt.target.result;
+      document.getElementById('preview-img').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  };
+  document.getElementById('edit-form').onsubmit = function(e) {
+    e.preventDefault();
+    const id = document.getElementById('edit-id').value;
+    const name = document.getElementById('edit-name').value;
+    const price = document.getElementById('edit-price').value.replace(/\./g, '');
+    const category = document.getElementById('edit-category').value;
+    const fileInput = document.getElementById('edit-img-file');
+    const file = fileInput.files[0];
+
+    if (file) {
+      // Nếu có file ảnh mới, upload trước
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('product_id', id);
+      fetch('upload-image.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          updateProduct(id, name, price, data.url, category);
+        } else {
+          alert('Lỗi upload ảnh: ' + data.message);
+        }
+      });
+    } else {
+      // Không có file mới, chỉ cập nhật thông tin khác
+      updateProduct(id, name, price, '', category);
+    }
+  };
+
+  function updateProduct(id, name, price, img, category) {
+    fetch('edit-product.php', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        id, name, price, img, category,
+        user_id: localStorage.getItem('user_id')
+      })
+    })
+    .then(res => res.json())
+    .then(result => {
+      if (result.success) {
+        alert('Đã sửa sản phẩm thành công!');
+        closeEditModal();
+        fetchProducts();
+      } else {
+        alert(result.message || 'Lỗi khi cập nhật sản phẩm!');
+      }
+    });
+  }
+  </script>
+</body>
+</html>

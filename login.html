@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Đăng nhập - Thủy Sản Thái Sơn</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: url('https://images.unsplash.com/photo-1565895405227-9f4cb45a59b4?auto=format&fit=crop&w=1600&q=80') no-repeat center center/cover;
+      margin: 0;
+      display: flex;
+      height: 100vh;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .login-container {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 30px 40px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-container h2 {
+      text-align: center;
+      color: #003366;
+      margin-bottom: 20px;
+    }
+
+    .login-container input[type="text"],
+    .login-container input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    .login-container button {
+      width: 100%;
+      background-color: #007B8A;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .login-container button:hover {
+      background-color: #005f6b;
+    }
+
+    .show-password {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      margin-top: -12px;
+    }
+
+    .show-password input {
+      margin-right: 8px;
+    }
+
+    .register-link {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .register-link a {
+      color: #007B8A;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .register-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Đăng nhập</h2>
+    <form id="loginForm" autocomplete="off">
+      <label for="username">Tên đăng nhập</label>
+      <input type="text" id="username" name="username" placeholder="Nhập tên đăng nhập" required>
+
+      <label for="password">Mật khẩu</label>
+      <input type="password" id="password" name="password" placeholder="Nhập mật khẩu" required>
+
+      <div class="show-password">
+        <input type="checkbox" id="togglePassword">
+        <label for="togglePassword">Hiện mật khẩu</label>
+      </div>
+
+      <button type="submit">Đăng nhập</button>
+    </form>
+
+    <div class="register-link">
+      <p>Không có tài khoản? <a href="register.html">Đăng ký ngay</a></p>
+      <p><a href="http://localhost/thaisonweb/webthuysanthaison.html" style="color:#007B8A;font-weight:bold;">&#8592; Quay về trang chủ</a></p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('togglePassword').addEventListener('change', function () {
+      const passwordField = document.getElementById('password');
+      passwordField.type = this.checked ? 'text' : 'password';
+    });
+
+    // Xử lý đăng nhập AJAX
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      fetch('login.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({username, password})
+      })
+      .then(res => res.json())
+      .then(result => {
+        if(result.success) {
+          // Lưu user_id vào localStorage (nếu cần)
+          localStorage.setItem('user_id', result.user_id);
+          // Chuyển về trang chủ
+          window.location.href = 'webthuysanthaison.html';
+        } else {
+          alert(result.message || 'Sai tài khoản hoặc mật khẩu!');
+        }
+      })
+      .catch(() => alert('Lỗi kết nối server!'));
+    });
+  </script>
+</body>
+</html>

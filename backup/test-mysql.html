@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Test Kết nối MySQL</title>
+  </head>
+  <body>
+    <h2>Kết quả kiểm tra kết nối MySQL:</h2>
+    <div id="result" style="font-weight: bold; color: blue"></div>
+
+    <script>
+      fetch("connect.php")
+        .then((response) => response.text())
+        .then((data) => {
+          document.getElementById("result").innerText = data;
+        })
+        .catch((error) => {
+          document.getElementById("result").innerText =
+            "Không thể kết nối đến server!";
+        });
+    </script>
+  </body>
+</html>

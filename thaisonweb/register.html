@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng Ký Tài Khoản - Thủy Sản Thái Sơn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <header>
+        <div>
+            <img id="header-logo" src="https://placehold.co/100x40/0077b6/ffffff?text=Fish+Logo" alt="Fish Logo" />
+        </div>
+        <nav>
+            <a href="webthuysanthaison.html">Trang Chủ</a>
+            <a href="product.html">Sản Phẩm</a>
+            <a href="cart.html">Giỏ Hàng</a>
+            <a href="login.html">Đăng Nhập</a>
+            <a href="admin.html">Quản Trị</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Đăng Ký Tài Khoản</h1>
+        <form action="register.php" method="POST">
+            <label for="username">Tên Đăng Nhập:</label>
+            <input type="text" id="username" name="username" required />
+
+            <label for="password">Mật Khẩu:</label>
+            <input type="password" id="password" name="password" required />
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required />
+
+            <button type="submit">Đăng Ký</button>
+        </form>
+        <p>Đã có tài khoản? <a href="login.html">Đăng Nhập</a></p>
+    </main>
+
+    <footer>
+        <h3>Liên hệ với chúng tôi</h3>
+        <p>📍 Số 123, đường Biển Cả, Quận 7, TP.HCM</p>
+        <p>📱 0909 xxx xxx | 📧 thaisson@thuysan.vn</p>
+        <p>🌐 www.thaissonthuysan.vn</p>
+    </footer>
+</body>
+</html>

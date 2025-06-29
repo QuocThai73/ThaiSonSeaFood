@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Đăng ký - Thủy Sản Thái Sơn</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: url('https://images.unsplash.com/photo-1583337130417-3346a1f1d5f8?auto=format&fit=crop&w=1600&q=80') no-repeat center center/cover;
+      margin: 0;
+      display: flex;
+      height: 100vh;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .register-container {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 30px 40px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 450px;
+    }
+
+    .register-container h2 {
+      text-align: center;
+      color: #003366;
+      margin-bottom: 20px;
+    }
+
+    .register-container input[type="text"],
+    .register-container input[type="email"],
+    .register-container input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    .register-container button {
+      width: 100%;
+      background-color: #007B8A;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .register-container button:hover {
+      background-color: #005f6b;
+    }
+
+    .login-link {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .login-link a {
+      color: #007B8A;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="register-container">
+    <h2>Tạo tài khoản</h2>
+    <form action="/register" method="POST">
+      <label for="fullname">Họ và tên</label>
+      <input type="text" id="fullname" name="fullname" placeholder="Nhập họ và tên" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="Nhập email" required>
+
+      <label for="username">Tên đăng nhập</label>
+      <input type="text" id="username" name="username" placeholder="Chọn tên đăng nhập" required>
+
+      <label for="password">Mật khẩu</label>
+      <input type="password" id="password" name="password" placeholder="Tạo mật khẩu" required>
+
+      <button type="submit">Đăng ký</button>
+    </form>
+
+    <div class="login-link">
+      <p>Đã có tài khoản? <a href="login.html">Đăng nhập</a></p>
+    </div>
+    <div class="login-link">
+      <p><a href="http://localhost/thaisonweb/webthuysanthaison.html">&#8592; Quay về trang chủ</a></p>
+    </div>
+  </div>
+  <script>
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const data = {
+        fullname: document.getElementById('fullname').value,
+        email: document.getElementById('email').value,
+        username: document.getElementById('username').value,
+        password: document.getElementById('password').value
+    };
+    fetch('register.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(result => {
+        alert(result.message);
+        if(result.success) {
+            window.location.href = 'login.html';
+        }
+    })
+    .catch(() => alert('Lỗi kết nối server!'));
+});
+</script>
+</body>
+</html>

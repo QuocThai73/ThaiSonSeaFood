@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Danh sách sản phẩm - Thủy Sản Thái Sơn</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f8ff;
+      display: flex;
+    }
+    header {
+      background-color: #0077b6;
+      color: white;
+      padding: 1em;
+      text-align: center;
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+    }
+    header h1 {
+      font-size: 20px;
+      margin: 0;
+    }
+    .main-content {
+      display: flex;
+      padding-top: 80px;
+      width: 100%;
+    }
+    .sidebar {
+      width: 200px;
+      background: #e0f7fa;
+      padding: 20px;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+    .sidebar h3 {
+      margin-top: 0;
+    }
+    .sidebar label {
+      display: block;
+      margin: 10px 0;
+    }
+    .section {
+      flex-grow: 1;
+      padding: 40px 20px;
+      max-width: 1000px;
+      margin: auto;
+    }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    .product {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      transition: transform 0.2s;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .product:hover {
+      transform: translateY(-5px);
+    }
+    .product img {
+      width: 100%;
+      max-width: 250px;
+      height: 180px;
+      object-fit: contain;
+      border-radius: 6px;
+      background: #f3f3f3;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+    .product h3 {
+      margin: 10px 0 5px;
+    }
+    .product p {
+      color: #333;
+      margin: 5px 0;
+    }
+    .product button {
+      background-color: #00b4d8;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      margin-top: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .product button:hover {
+      background-color: #0077b6;
+    }
+    @media (max-width: 1100px) {
+      .products {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 700px) {
+      .main-content {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        box-shadow: none;
+        margin-bottom: 20px;
+      }
+      .products {
+        grid-template-columns: 1fr;
+      }
+    }
+    .back-home-btn {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      background: #00b4d8;
+      color: #fff;
+      padding: 7px 14px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-size: 15px;
+      z-index: 1100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: background 0.2s;
+    }
+    .back-home-btn:hover {
+      background: #0077b6;
+    }
+    .back-cart-btn {
+      position: fixed;
+      top: 16px;
+      left: 140px;
+      background: #28a745;
+      color: #fff;
+      padding: 7px 14px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-size: 15px;
+      z-index: 1100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: background 0.2s;
+    }
+    .back-cart-btn:hover {
+      background: #218838;
+    }
+  </style>
+</head>
+<body>
+  <a href="webthuysanthaison.html" class="back-home-btn" title="Về trang chủ">&#8592; Trang chủ</a>
+  <a href="cart.html" class="back-cart-btn" title="Về giỏ hàng">&#128722; Giỏ hàng</a>
+  <header>
+    <h1>Danh sách sản phẩm</h1>
+  </header>
+
+  <div class="main-content">
+    <aside class="sidebar">
+      <h3>Phân loại</h3>
+      <label><input type="checkbox" class="filter" value="Cá"> Cá</label>
+      <label><input type="checkbox" class="filter" value="Tôm"> Tôm</label>
+      <label><input type="checkbox" class="filter" value="Cua"> Cua</label>
+      <label><input type="checkbox" class="filter" value="Nghêu"> Nghêu</label>
+      <label><input type="checkbox" class="filter" value="Sò"> Sò</label>
+      <label><input type="checkbox" class="filter" value="Mực"> Mực</label>
+      <label><input type="checkbox" class="filter" value="Hàu"> Hàu</label>
+    </aside>
+
+    <section class="section">
+      <div id="product-list" class="products"></div>
+    </section>
+  </div>
+
+  <script>
+    let allProducts = [];
+
+    // Lấy sản phẩm từ database qua get-products.php
+    function fetchProducts() {
+      fetch('get-products.php')
+        .then(res => res.json())
+        .then(products => {
+          allProducts = products;
+          renderProducts(products);
+        })
+        .catch(() => {
+          document.getElementById('product-list').innerHTML = '<p>Lỗi tải sản phẩm!</p>';
+        });
+    }
+
+    function renderProducts(list) {
+      const container = document.getElementById('product-list');
+      container.innerHTML = '';
+      if (!list.length) {
+        container.innerHTML = '<p>Không có sản phẩm nào.</p>';
+        return;
+      }
+      list.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'product';
+        div.innerHTML = `
+          <img src="${p.img}" alt="${p.name}" onerror="this.src='https://placehold.co/250x180?text=No+Image'">
+          <h3>${p.name}</h3>
+          <p>${p.description || ''}</p>
+          <p>Giá: ${Number(p.price).toLocaleString('vi-VN')} đ</p>
+          <button class="add-to-cart-btn" data-id="${p.id}">Thêm vào giỏ</button>
+        `;
+        container.appendChild(div);
+      });
+
+      // Gắn sự kiện cho nút "Thêm vào giỏ"
+      container.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const productId = this.dataset.id;
+          const product = list.find(item => item.id == productId);
+          if (!product) return;
+
+          // Lấy giỏ hàng hiện tại từ localStorage
+          let cart = JSON.parse(localStorage.getItem('shoppingCart')) || [];
+          // Kiểm tra sản phẩm đã có trong giỏ chưa
+          const idx = cart.findIndex(item => item.id == product.id);
+          if (idx > -1) {
+            cart[idx].quantity += 1;
+          } else {
+            cart.push({
+              id: product.id,
+              name: product.name,
+              price: Number(product.price),
+              img: product.img,
+              quantity: 1
+            });
+          }
+          localStorage.setItem('shoppingCart', JSON.stringify(cart));
+          alert('Đã thêm vào giỏ hàng!');
+        });
+      });
+    }
+
+    function handleFilterChange(event) {
+      document.querySelectorAll('.filter').forEach(cb => {
+        if (cb !== event.target) cb.checked = false;
+      });
+      const checked = Array.from(document.querySelectorAll('.filter:checked')).map(cb => cb.value.toLowerCase());
+      const filtered = allProducts.filter(p => checked.some(c => p.name.toLowerCase().includes(c)));
+      renderProducts(checked.length ? filtered : allProducts);
+    }
+
+    window.onload = () => {
+      fetchProducts();
+      document.querySelectorAll('.filter').forEach(cb => cb.addEventListener('change', handleFilterChange));
+    }
+  </script>
+</body>
+</html>
