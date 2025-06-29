@@ -4,10 +4,13 @@ require_once 'connect.php';
 
 $orders = [];
 
-$sql = "SELECT o.order_id, o.user_id, u.username, o.order_date, o.total
+$sql = "SELECT o.order_id, o.user_id, u.username, o.order_date, o.total, 
+               IFNULL(o.address, '') AS address, 
+               IFNULL(o.phone, '') AS phone, 
+               IFNULL(o.method, '') AS method
         FROM Orders o
         JOIN Users u ON o.user_id = u.user_id
-        ORDER BY o.order_date DESC";
+        ORDER BY o.order_id DESC";
 $result = $conn->query($sql);
 
 if ($result && $result->num_rows > 0) {

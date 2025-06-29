@@ -29,60 +29,75 @@
       }
 
       function renderOrders(orders) {
-        console.log(orders); // Thêm dòng này để kiểm tra dữ liệu trả về
         if (!orders.length) {
           document.getElementById("orders-list").innerHTML =
             "<p>Chưa có đơn hàng nào.</p>";
           return;
         }
         let html = `<table class="product-list">
-        <thead>
-          <tr>
-            <th>Mã ĐH</th>
-            <th>Khách hàng</th>
-            <th>Ngày đặt</th>
-            <th>Tổng tiền</th>
-            <th>Chi tiết</th>
-          </tr>
-        </thead>
-        <tbody>
-      `;
+          <thead>
+            <tr>
+              <th>Mã ĐH</th>
+              <th>Khách hàng</th>
+              <th>Ngày đặt</th>
+              <th>Tổng tiền</th>
+              <th>Địa chỉ</th>
+              <th>SĐT</th>
+              <th>Phương thức</th>
+              <th>Chi tiết</th>
+            </tr>
+          </thead>
+          <tbody>
+        `;
         for (const o of orders) {
           html += `
-          <tr>
-            <td>${o.order_id}</td>
-            <td>${o.username} (${o.user_id})</td>
-            <td>${new Date(o.order_date).toLocaleString("vi-VN")}</td>
-            <td>${Number(o.total).toLocaleString("vi-VN")}đ</td>
-            <td>
-              <button onclick="showDetails(${
-                o.order_id
-              })" class="edit-btn">Xem</button>
-            </td>
-          </tr>
-          <tr id="details-${
-            o.order_id
-          }" style="display:none;background:#f6faff">
-            <td colspan="5">
-              <div>
-                <b>Chi tiết đơn hàng:</b>
-                <ul style="margin:8px 0 0 16px;padding:0;">
-                  ${o.details
-                    .map(
-                      (d) => `
-                    <li>
-                      ${d.name} (Mã: ${d.product_id}) - SL: ${
-                        d.quantity
-                      } - Đơn giá: ${Number(d.price).toLocaleString("vi-VN")}đ
-                    </li>
-                  `
-                    )
-                    .join("")}
-                </ul>
-              </div>
-            </td>
-          </tr>
-        `;
+            <tr>
+              <td>${o.order_id ?? ""}</td>
+              <td>${o.username ?? ""} (${o.user_id ?? ""})</td>
+              <td>${
+                o.order_date
+                  ? new Date(o.order_date).toLocaleString("vi-VN")
+                  : ""
+              }</td>
+              <td>${
+                o.total ? Number(o.total).toLocaleString("vi-VN") + "đ" : ""
+              }</td>
+              <td>${o.address ?? ""}</td>
+              <td>${o.phone ?? ""}</td>
+              <td>${o.method ?? ""}</td>
+              <td>
+                <button onclick="showDetails(${
+                  o.order_id
+                })" class="edit-btn">Xem</button>
+              </td>
+            </tr>
+            <tr id="details-${
+              o.order_id
+            }" style="display:none;background:#f6faff">
+              <td colspan="8">
+                <div>
+                  <b>Chi tiết đơn hàng:</b>
+                  <ul style="margin:8px 0 0 16px;padding:0;">
+                    ${(o.details || [])
+                      .map(
+                        (d) => `
+                      <li>
+                        ${d.name ?? ""} (Mã: ${d.product_id ?? ""}) - SL: ${
+                          d.quantity ?? ""
+                        } - Đơn giá: ${
+                          d.price
+                            ? Number(d.price).toLocaleString("vi-VN") + "đ"
+                            : ""
+                        }
+                      </li>
+                    `
+                      )
+                      .join("")}
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          `;
         }
         html += "</tbody></table>";
         document.getElementById("orders-list").innerHTML = html;
