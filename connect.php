@@ -9,9 +9,8 @@ $db_name = "thaisonseafood";
 
 $conn = new mysqli($db_server, $db_user, $db_pass, $db_name);
 
-if ($conn) {
-    echo " Kết nối MySQL thành công!";
-} else {
-    echo " Kết nối MySQL thất bại!";
+if ($conn->connect_error) {
+    die("Kết nối MySQL thất bại: " . $conn->connect_error);
 }
+// echo " Kết nối MySQL thành công!"; // Đã xóa dòng này để trả về JSON chuẩn
 ?>

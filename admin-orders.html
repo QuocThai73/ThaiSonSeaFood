@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Quản lý đơn hàng - Admin</title>
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body>
+    <h2>Danh sách đơn hàng</h2>
+    <button onclick="location.href='admin.html'">
+      Quay lại quản trị sản phẩm
+    </button>
+    <div id="orders-list"></div>
+
+    <script>
+      // Chỉ cho phép admin truy cập
+      if (localStorage.getItem("user_id") !== "U001") {
+        alert("Bạn không có quyền truy cập!");
+        location.href = "webthuysanthaison.html";
+      }
+
+      function fetchOrders() {
+        fetch("get-orders.php")
+          .then((res) => res.json())
+          .then((orders) => {
+            // Đã xoá alert thông báo kết nối thành công
+            renderOrders(orders);
+          });
+      }
+
+      function renderOrders(orders) {
+        console.log(orders); // Thêm dòng này để kiểm tra dữ liệu trả về
+        if (!orders.length) {
+          document.getElementById("orders-list").innerHTML =
+            "<p>Chưa có đơn hàng nào.</p>";
+          return;
+        }
+        let html = `<table class="product-list">
+        <thead>
+          <tr>
+            <th>Mã ĐH</th>
+            <th>Khách hàng</th>
+            <th>Ngày đặt</th>
+            <th>Tổng tiền</th>
+            <th>Chi tiết</th>
+          </tr>
+        </thead>
+        <tbody>
+      `;
+        for (const o of orders) {
+          html += `
+          <tr>
+            <td>${o.order_id}</td>
+            <td>${o.username} (${o.user_id})</td>
+            <td>${new Date(o.order_date).toLocaleString("vi-VN")}</td>
+            <td>${Number(o.total).toLocaleString("vi-VN")}đ</td>
+            <td>
+              <button onclick="showDetails(${
+                o.order_id
+              })" class="edit-btn">Xem</button>
+            </td>
+          </tr>
+          <tr id="details-${
+            o.order_id
+          }" style="display:none;background:#f6faff">
+            <td colspan="5">
+              <div>
+                <b>Chi tiết đơn hàng:</b>
+                <ul style="margin:8px 0 0 16px;padding:0;">
+                  ${o.details
+                    .map(
+                      (d) => `
+                    <li>
+                      ${d.name} (Mã: ${d.product_id}) - SL: ${
+                        d.quantity
+                      } - Đơn giá: ${Number(d.price).toLocaleString("vi-VN")}đ
+                    </li>
+                  `
+                    )
+                    .join("")}
+                </ul>
+              </div>
+            </td>
+          </tr>
+        `;
+        }
+        html += "</tbody></table>";
+        document.getElementById("orders-list").innerHTML = html;
+      }
+
+      window.showDetails = function (orderId) {
+        const row = document.getElementById("details-" + orderId);
+        if (row.style.display === "none") row.style.display = "";
+        else row.style.display = "none";
+      };
+
+      fetchOrders();
+    </script>
+  </body>
+</html>

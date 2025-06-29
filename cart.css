@@ -230,7 +230,7 @@ footer {
         text-align: left;
     }
     .cart-table tr:last-child td {
-         border-bottom: 1px solid #eee;
+        border-bottom: 1px solid #eee;
     }
     .cart-item {
         flex-direction: row;
