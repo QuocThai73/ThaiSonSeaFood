@@ -10,8 +10,14 @@ if ($conn->connect_error) {
 $data = json_decode(file_get_contents("php://input"), true);
 $user_id = $data['user_id'] ?? null;
 $cart = $data['cart'] ?? [];
+$address = $data['address'] ?? '';
+$phone = $data['phone'] ?? '';
+$method = $data['method'] ?? '';
 
-if (!$user_id || !is_array($cart) || count($cart) === 0) {
+if (
+    !$user_id || !is_array($cart) || count($cart) === 0 ||
+    !$address || !$phone || !$method
+) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Thiếu thông tin đơn hàng']);
     exit;
@@ -23,9 +29,9 @@ foreach ($cart as $item) {
     $total += $item['price'] * $item['quantity'];
 }
 
-// Thêm vào bảng Orders
-$stmt = $conn->prepare("INSERT INTO Orders (user_id, total) VALUES (?, ?)");
-$stmt->bind_param("sd", $user_id, $total);
+// Thêm vào bảng Orders (có thêm address, phone, method)
+$stmt = $conn->prepare("INSERT INTO Orders (user_id, total, address, phone, method) VALUES (?, ?, ?, ?, ?)");
+$stmt->bind_param("sdsss", $user_id, $total, $address, $phone, $method);
 if (!$stmt->execute()) {
     echo json_encode(['success' => false, 'message' => 'Không thể tạo đơn hàng']);
     exit;

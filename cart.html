@@ -41,7 +41,93 @@
         >
           Tiếp tục mua sắm
         </button>
-        <button class="btn-checkout">Thanh toán</button>
+        <button class="btn-checkout" type="button">Thanh toán</button>
+      </div>
+    </div>
+
+    <!-- Modal nhập thông tin thanh toán -->
+    <div
+      id="checkout-modal"
+      style="
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.3);
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div
+        class="checkout-modal-content"
+        style="
+          background: #fff;
+          padding: 24px 32px;
+          border-radius: 10px;
+          max-width: 350px;
+          width: 90%;
+          position: relative;
+        "
+      >
+        <button
+          type="button"
+          class="close-modal-btn"
+          onclick="closeCheckoutModal()"
+          aria-label="Đóng"
+          style="
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            font-size: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+          "
+        >
+          &times;
+        </button>
+        <h3>Thông tin thanh toán</h3>
+        <form
+          id="checkout-form"
+          autocomplete="off"
+          onsubmit="submitOrder(event)"
+        >
+          <label for="checkout-address">Địa chỉ nhận hàng</label>
+          <input
+            type="text"
+            id="checkout-address"
+            required
+            placeholder="Nhập địa chỉ nhận hàng"
+            style="width: 100%; margin-bottom: 10px"
+          />
+
+          <label for="checkout-phone">Số điện thoại</label>
+          <input
+            type="tel"
+            id="checkout-phone"
+            required
+            pattern="0[0-9]{9,10}"
+            placeholder="Nhập số điện thoại"
+            style="width: 100%; margin-bottom: 10px"
+          />
+
+          <label for="checkout-method">Hình thức nhận hàng</label>
+          <select
+            id="checkout-method"
+            required
+            style="width: 100%; margin-bottom: 16px"
+          >
+            <option value="tới lấy">Tới lấy tại cửa hàng</option>
+            <option value="vận chuyển">Vận chuyển tận nơi</option>
+          </select>
+
+          <button type="submit" class="btn-checkout" style="width: 100%">
+            Xác nhận đặt hàng
+          </button>
+        </form>
       </div>
     </div>
 
@@ -164,39 +250,56 @@
       cartItemsContainer.addEventListener("click", handleCartAction);
       window.onload = renderCart;
 
-      // Xử lý nút "Thanh toán"
-      document
-        .querySelector(".btn-checkout")
-        .addEventListener("click", function () {
-          // Giả sử user_id là 'U001' (bạn có thể lấy từ đăng nhập thực tế)
-          const user_id = localStorage.getItem("user_id") || "U001";
-          if (cartItems.length === 0) {
-            alert("Giỏ hàng trống!");
-            return;
-          }
-          fetch("place-order.php", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              user_id: user_id,
-              cart: cartItems,
-            }),
+      // Hiển thị modal thanh toán
+      function openCheckoutModal() {
+        if (cartItems.length === 0) {
+          alert("Giỏ hàng trống!");
+          return;
+        }
+        document.getElementById("checkout-modal").style.display = "flex";
+      }
+      function closeCheckoutModal() {
+        document.getElementById("checkout-modal").style.display = "none";
+      }
+
+      document.querySelector(".btn-checkout").onclick = openCheckoutModal;
+
+      function submitOrder(e) {
+        e.preventDefault();
+        const user_id = localStorage.getItem("user_id") || "U001";
+        const address = document
+          .getElementById("checkout-address")
+          .value.trim();
+        const phone = document.getElementById("checkout-phone").value.trim();
+        const method = document.getElementById("checkout-method").value;
+
+        fetch("place-order.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id,
+            cart: cartItems,
+            address,
+            phone,
+            method,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              alert("Đặt hàng thành công!");
+              cartItems = [];
+              updateLocalStorage();
+              renderCart();
+              closeCheckoutModal();
+            } else {
+              alert("Đặt hàng thất bại: " + data.message);
+            }
           })
-            .then((res) => res.json())
-            .then((data) => {
-              if (data.success) {
-                alert("Đặt hàng thành công!");
-                cartItems = [];
-                updateLocalStorage();
-                renderCart();
-              } else {
-                alert("Đặt hàng thất bại: " + data.message);
-              }
-            })
-            .catch(() => {
-              alert("Không thể kết nối server!");
-            });
-        });
+          .catch(() => {
+            alert("Không thể kết nối server!");
+          });
+      }
     </script>
   </body>
 </html>
