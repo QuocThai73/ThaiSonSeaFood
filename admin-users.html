@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quản lý tài khoản khách hàng</title>
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <div id="notify" style="display:none;position:fixed;top:20px;right:20px;z-index:9999;padding:16px 24px;background:#fff;border:1px solid #ccc;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.15);color:#333;font-size:16px;"></div>
+  <div class="admin-container">
+    <h2>Quản lý tài khoản khách hàng</h2>
+    <button onclick="location.href='admin.html'" class="edit-btn">Quay lại quản trị sản phẩm</button>
+    <div id="users-list"></div>
+
+    <!-- Modal sửa tài khoản -->
+    <div id="edit-user-modal" style="display:none; position:fixed; left:0;top:0;width:100vw;height:100vh;z-index:100;background:rgba(0,0,0,0.3);align-items:center;justify-content:center;">
+      <div style="background:#fff;padding:24px;min-width:300px;max-width:90vw;">
+        <h3>Sửa tài khoản</h3>
+        <form id="edit-user-form">
+          <input type="hidden" id="edit-user-id" />
+          <div>
+            <label>Tên đăng nhập:</label>
+            <input id="edit-username" required />
+          </div>
+          <div>
+            <label>Email:</label>
+            <input id="edit-email" type="email" />
+          </div>
+          <div>
+            <label>Mật khẩu mới:</label>
+            <input id="edit-password" type="text" placeholder="Để trống nếu không đổi" />
+          </div>
+          <div style="margin-top:10px;">
+            <button type="submit" class="edit-btn">Lưu</button>
+            <button type="button" onclick="closeEditUserModal()">Hủy</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+  <script>
+    // Chỉ cho phép admin truy cập
+    if (localStorage.getItem("user_id") !== "U001") {
+      alert("Bạn không có quyền truy cập!");
+      location.href = "webthuysanthaison.html";
+    }
+
+    function fetchUsers() {
+      fetch("get-users.php")
+        .then(res => res.json())
+        .then(users => renderUsers(users));
+    }
+
+    function renderUsers(users) {
+      const div = document.getElementById("users-list");
+      if (!users.length) {
+        div.innerHTML = "<p>Chưa có tài khoản khách hàng nào.</p>";
+        return;
+      }
+      div.innerHTML = `
+        <table class="product-list">
+          <thead>
+            <tr>
+              <th>Mã KH</th>
+              <th>Tên đăng nhập</th>
+              <th>Email</th>
+              <th>Ngày tạo</th>
+              <th>Sửa</th>
+              <th>Xóa</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${users.map(u => `
+              <tr>
+                <td>${u.user_id}</td>
+                <td>${u.username}</td>
+                <td>${u.email || ""}</td>
+                <td>${u.created_at || ""}</td>
+                <td>
+                  <button onclick="openEditUserModal('${u.user_id}','${u.username}','${u.email || ""}')" class="edit-btn">Sửa</button>
+                </td>
+                <td>
+                  <button onclick="deleteUser('${u.user_id}', '${u.username}')" class="delete-btn">Xóa</button>
+                </td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function deleteUser(user_id, username) {
+      if (!confirm(`Bạn có chắc chắn muốn xóa tài khoản "${username}"?`)) return;
+      fetch("delete-user.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id })
+      })
+        .then(res => res.json())
+        .then(result => {
+          showNotify(result.message, result.success);
+          fetchUsers();
+        });
+    }
+
+    function openEditUserModal(user_id, username, email) {
+      document.getElementById("edit-user-id").value = user_id;
+      document.getElementById("edit-username").value = username;
+      document.getElementById("edit-email").value = email;
+      document.getElementById("edit-user-modal").style.display = "flex";
+    }
+    function closeEditUserModal() {
+      document.getElementById("edit-user-modal").style.display = "none";
+    }
+
+    // Xử lý submit form sửa tài khoản
+    document.getElementById("edit-user-form").onsubmit = function(e) {
+      e.preventDefault();
+      const user_id = document.getElementById("edit-user-id").value;
+      const username = document.getElementById("edit-username").value;
+      const email = document.getElementById("edit-email").value;
+      const password = document.getElementById("edit-password").value;
+      fetch("edit-user.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id, username, email, password })
+      })
+        .then(res => res.json())
+        .then(result => {
+          showNotify(result.message, result.success);
+          if (result.success) {
+            closeEditUserModal();
+            fetchUsers();
+          }
+        });
+    };
+
+    function showNotify(msg, success = true) {
+      const notify = document.getElementById("notify");
+      notify.innerText = msg;
+      notify.style.background = success ? "#e6ffed" : "#fff1f0";
+      notify.style.borderColor = success ? "#52c41a" : "#ff4d4f";
+      notify.style.color = success ? "#237804" : "#a8071a";
+      notify.style.display = "block";
+      setTimeout(() => {
+        notify.style.display = "none";
+      }, 2000);
+    }
+
+    fetchUsers();
+    window.deleteUser = deleteUser;
+  </script>
+</body>
+</html>
