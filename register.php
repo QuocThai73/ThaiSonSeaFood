@@ -19,6 +19,16 @@ if (!$username || !$password || !$email) {
     exit;
 }
 
+// Kiểm tra độ mạnh của mật khẩu: ít nhất 8 ký tự, có ít nhất 1 số và 1 chữ thường
+if (
+    strlen($password) < 8 ||
+    !preg_match('/[a-z]/', $password) ||
+    !preg_match('/[0-9]/', $password)
+) {
+    echo json_encode(['success' => false, 'message' => 'Mật khẩu phải ít nhất 8 ký tự, gồm ít nhất 1 số và 1 chữ thường!']);
+    exit;
+}
+
 // Kiểm tra username đã tồn tại
 $stmt = $conn->prepare("SELECT user_id FROM Users WHERE username=?");
 $stmt->bind_param("s", $username);
@@ -26,6 +36,17 @@ $stmt->execute();
 $stmt->store_result();
 if ($stmt->num_rows > 0) {
     echo json_encode(['success' => false, 'message' => 'Tên đăng nhập đã tồn tại!']);
+    exit;
+}
+$stmt->close();
+
+// Kiểm tra email đã tồn tại
+$stmt = $conn->prepare("SELECT user_id FROM Users WHERE email=?");
+$stmt->bind_param("s", $email);
+$stmt->execute();
+$stmt->store_result();
+if ($stmt->num_rows > 0) {
+    echo json_encode(['success' => false, 'message' => 'Email đã được sử dụng!']);
     exit;
 }
 $stmt->close();

@@ -89,6 +89,10 @@
 
       <label for="password">Mật khẩu</label>
       <input type="password" id="password" name="password" placeholder="Tạo mật khẩu" required>
+      <div style="margin-bottom:16px;">
+        <input type="checkbox" id="show-password" style="margin-right:6px;">
+        <label for="show-password" style="font-size:14px;cursor:pointer;">Hiện mật khẩu</label>
+      </div>
 
       <button type="submit">Đăng ký</button>
     </form>
@@ -97,7 +101,7 @@
       <p>Đã có tài khoản? <a href="login.html">Đăng nhập</a></p>
     </div>
     <div class="login-link">
-      <p><a href="http://localhost/thaisonweb/webthuysanthaison.html">&#8592; Quay về trang chủ</a></p>
+      <p><a href="webthuysanthaison.html">&#8592; Quay về trang chủ</a></p>
     </div>
   </div>
   <script>
@@ -123,6 +127,11 @@ document.querySelector('form').addEventListener('submit', function(e) {
     })
     .catch(() => alert('Lỗi kết nối server!'));
 });
-</script>
+
+document.getElementById('show-password').addEventListener('change', function() {
+  const pw = document.getElementById('password');
+  pw.type = this.checked ? 'text' : 'password';
+});
+  </script>
 </body>
 </html>
