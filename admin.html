@@ -290,6 +290,7 @@
       };
       document.getElementById("add-form").onsubmit = function (e) {
         e.preventDefault();
+
         const name = document.getElementById("add-name").value;
         const price = document
           .getElementById("add-price")
@@ -321,14 +322,10 @@
               const formData = new FormData();
               formData.append("image", file);
               formData.append("product_id", result.product_id);
-              fetch("upload-image.php", {
-                method: "POST",
-                body: formData,
-              })
+              fetch("upload-image.php", { method: "POST", body: formData })
                 .then((res) => res.json())
                 .then((data) => {
                   if (data.success) {
-                    // Gọi API cập nhật trường img cho sản phẩm vừa tạo
                     fetch("edit-product.php", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
@@ -345,19 +342,28 @@
                           closeAddModal();
                           fetchProducts();
                         } else {
-                          alert(
-                            updateResult.message ||
-                              "Lỗi khi cập nhật ảnh sản phẩm!"
-                          );
+                          alert(updateResult.message || "Lỗi khi cập nhật ảnh sản phẩm!");
                         }
+                      })
+                      .catch((err) => {
+                        alert("Lỗi khi cập nhật ảnh sản phẩm!");
+                        console.error("edit-product.php error:", err);
                       });
                   } else {
                     alert("Lỗi upload ảnh: " + data.message);
                   }
+                })
+                .catch((err) => {
+                  alert("Lỗi upload ảnh!");
+                  console.error("upload-image.php error:", err);
                 });
             } else {
               alert(result.message || "Thêm sản phẩm thất bại!");
             }
+          })
+          .catch((err) => {
+            alert("Có lỗi xảy ra khi thêm sản phẩm!");
+            console.error("add-product.php error:", err);
           });
       };
 

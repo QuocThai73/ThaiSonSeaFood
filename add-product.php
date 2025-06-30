@@ -22,6 +22,19 @@ if (!$name || !$price || !$category) {
     exit;
 }
 
+// Kiểm tra trùng tên sản phẩm
+$check = $conn->prepare("SELECT product_id FROM Products WHERE name = ?");
+$check->bind_param("s", $name);
+$check->execute();
+$check->store_result();
+if ($check->num_rows > 0) {
+    echo json_encode(['success' => false, 'message' => 'Tên sản phẩm đã tồn tại!']);
+    $check->close();
+    $conn->close();
+    exit;
+}
+$check->close();
+
 // Sinh product_id tự động
 $result = $conn->query("SELECT product_id FROM Products ORDER BY product_id DESC LIMIT 1");
 if ($row = $result->fetch_assoc()) {
