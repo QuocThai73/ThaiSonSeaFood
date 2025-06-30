@@ -8,7 +8,7 @@ if ($conn->connect_error) {
   exit;
 }
 
-$sql = "SELECT product_id, name, description, price FROM Products";
+$sql = "SELECT product_id, name, description, price, quantity FROM Products";
 $result = $conn->query($sql);
 
 $products = [];
@@ -21,6 +21,7 @@ if ($result && $result->num_rows > 0) {
       'name' => $row['name'],
       'description' => $row['description'],
       'price' => $row['price'],
+      'quantity' => $row['quantity'], // Thêm dòng này
       'img' => $imgUrl
     ];
   }

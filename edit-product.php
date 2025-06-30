@@ -17,6 +17,7 @@ $name = isset($data['name']) ? trim($data['name']) : null;
 $price = isset($data['price']) ? floatval($data['price']) : null;
 $category = isset($data['category']) ? trim($data['category']) : null;
 $img = isset($data['img']) ? trim($data['img']) : null;
+$quantity = isset($data['quantity']) ? intval($data['quantity']) : null;
 
 if (!$id) {
     echo json_encode(['success' => false, 'message' => 'Thiếu mã sản phẩm!']);
@@ -47,6 +48,11 @@ if ($img !== null && $img !== '') {
     $fields[] = "img=?";
     $params[] = $img;
     $types .= 's';
+}
+if ($quantity !== null && $quantity !== '') {
+    $fields[] = "quantity=?";
+    $params[] = $quantity;
+    $types .= 'i';
 }
 
 if (!$fields) {
