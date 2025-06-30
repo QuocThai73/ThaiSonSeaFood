@@ -44,6 +44,12 @@
           style="display: none; margin-left: 16px"
           >Quản lý</a
         >
+        <a
+          href="orders.html"
+          id="ordersBtn"
+          style="display: none; margin-left: 16px"
+          >Đơn hàng</a
+        >
       </nav>
     </header>
 
@@ -319,18 +325,24 @@
         const userId = localStorage.getItem("user_id");
         const logoutBtn = document.getElementById("logoutBtn");
         const adminBtn = document.getElementById("adminBtn");
+        const ordersBtn = document.getElementById("ordersBtn");
         if (userId) {
           document
             .querySelectorAll(".dropdown")
             .forEach((el) => (el.style.display = "none"));
           if (logoutBtn) logoutBtn.style.display = "inline-block";
           // Hiện nút quản lý nếu là admin
-          if (userId === "U001" && adminBtn)
+          if (userId === "U001" && adminBtn) {
             adminBtn.style.display = "inline-block";
-          else if (adminBtn) adminBtn.style.display = "none";
+            if (ordersBtn) ordersBtn.style.display = "none";
+          } else {
+            if (adminBtn) adminBtn.style.display = "none";
+            if (ordersBtn) ordersBtn.style.display = "inline-block";
+          }
         } else {
           if (logoutBtn) logoutBtn.style.display = "none";
           if (adminBtn) adminBtn.style.display = "none";
+          if (ordersBtn) ordersBtn.style.display = "none";
         }
       };
 

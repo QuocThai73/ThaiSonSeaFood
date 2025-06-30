@@ -39,12 +39,12 @@ if ($row = $result->fetch_assoc()) {
     $newId = 'U001';
 }
 
-// Hash password
-$hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+// Không mã hóa mật khẩu
+$plainPassword = $password;
 
 // Thêm user mới
 $stmt = $conn->prepare("INSERT INTO Users (user_id, username, password, email) VALUES (?, ?, ?, ?)");
-$stmt->bind_param("ssss", $newId, $username, $hashedPassword, $email);
+$stmt->bind_param("ssss", $newId, $username, $plainPassword, $email);
 
 if ($stmt->execute()) {
     echo json_encode(['success' => true, 'message' => 'Đăng ký thành công!']);

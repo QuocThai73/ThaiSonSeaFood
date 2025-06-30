@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Đơn hàng của tôi</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', 'Inter', Arial, sans-serif;
+      background: url('https://images.unsplash.com/photo-1583337130417-3346a1f1d5f8?auto=format&fit=crop&w=1600&q=80') no-repeat center center/cover;
+      margin: 0;
+      min-height: 100vh;
+      color: #003366;
+      backdrop-filter: blur(2px);
+    }
+    header {
+      background: rgba(0, 119, 182, 0.85);
+      color: #fff;
+      padding: 24px 0 16px 0;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      border-bottom-left-radius: 24px;
+      border-bottom-right-radius: 24px;
+      margin-bottom: 24px;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+      margin-right: 24px;
+      font-size: 18px;
+      transition: text-decoration 0.2s;
+    }
+    header a:hover {
+      text-decoration: underline;
+    }
+    h2 {
+      margin: 0;
+      font-size: 2rem;
+      letter-spacing: 1px;
+      font-weight: 700;
+    }
+    #orders-container {
+      max-width: 900px;
+      margin: 32px auto 0 auto;
+      background: rgba(255,255,255,0.95);
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+      padding: 32px 24px 24px 24px;
+      min-height: 200px;
+    }
+    .order-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-bottom: 32px;
+      background: #f8fbff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,119,182,0.08);
+      font-size: 1rem;
+    }
+    .order-table th, .order-table td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #e0e7ef;
+    }
+    .order-table th {
+      background: #0077b6;
+      color: #fff;
+      font-weight: 600;
+      border-bottom: 2px solid #90e0ef;
+      letter-spacing: 0.5px;
+    }
+    .order-table tr:last-child td {
+      border-bottom: none;
+    }
+    .order-detail {
+      background: #e9f6fb;
+    }
+    .order-detail ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #003366;
+      font-size: 1rem;
+    }
+    .order-detail li {
+      margin-bottom: 4px;
+    }
+    @media (max-width: 700px) {
+      #orders-container {
+        padding: 12px 2vw;
+      }
+      .order-table th, .order-table td {
+        padding: 8px 4px;
+        font-size: 0.95rem;
+      }
+      h2 {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="webthuysanthaison.html">← Về trang chủ</a>
+    <h2>Đơn hàng của tôi</h2>
+  </header>
+  <div id="orders-container"></div>
+  <script>
+    const userId = localStorage.getItem("user_id") || "";
+
+    function renderOrders(orders) {
+      const container = document.getElementById("orders-container");
+      if (!orders.length) {
+        container.innerHTML = "<p style='text-align:center;color:#0077b6;font-size:1.2rem;'>Bạn chưa có đơn hàng nào.</p>";
+        return;
+      }
+      container.innerHTML = orders.map(order => `
+        <table class="order-table">
+          <tr>
+            <th>Mã đơn</th>
+            <th>Ngày đặt</th>
+            <th>Tổng tiền</th>
+            <th>Địa chỉ</th>
+            <th>Điện thoại</th>
+            <th>Phương thức</th>
+          </tr>
+          <tr>
+            <td>${order.order_id}</td>
+            <td>${order.order_date}</td>
+            <td style="color:#0077b6;font-weight:600">${Number(order.total).toLocaleString("vi-VN")} đ</td>
+            <td>${order.address}</td>
+            <td>${order.phone}</td>
+            <td>${order.method}</td>
+          </tr>
+          <tr class="order-detail">
+            <td colspan="6">
+              <b>Chi tiết:</b>
+              <ul>
+                ${order.details.map(d => `
+                  <li>${d.name} x${d.quantity} - <span style="color:#0077b6">${Number(d.price).toLocaleString("vi-VN")} đ</span></li>
+                `).join("")}
+              </ul>
+            </td>
+          </tr>
+        </table>
+      `).join("");
+    }
+
+    fetch("get-orders.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: userId })
+    })
+      .then(res => res.json())
+      .then(orders => renderOrders(orders))
+      .catch(() => {
+        document.getElementById("orders-container").innerHTML = "<p style='color:#a8071a;'>Lỗi khi tải đơn hàng!</p>";
+      });
+  </script>
+</body>
+</html>
