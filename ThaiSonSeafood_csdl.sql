@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS Products (
     price DECIMAL(10, 2),
     quantity INT,
     img VARCHAR(255) DEFAULT NULL,
+    category VARCHAR(50) DEFAULT NULL, -- thêm dòng này
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -61,11 +62,11 @@ VALUES
     ('U002', 'nguoimua2', 'hashed_password_2', 'user2@example.com');
 
 -- Dữ liệu mẫu cho Products (có trường img)
-INSERT INTO Products (product_id, name, description, price, quantity, img)
+INSERT INTO Products (product_id, name, description, price, quantity, img, category)
 VALUES
-    ('P001', 'Cá Hồi Na Uy', 'Cá hồi tươi ngon nhập khẩu từ Na Uy', 250000, 50, 'product_images/cahoi.jpg'),
-    ('P002', 'Tôm Sú Cà Mau', 'Tôm sú loại lớn từ vùng biển Cà Mau', 180000, 100, 'product_images/tomsu.jpg'),
-    ('P003', 'Mực Ống', 'Mực ống tươi sống đánh bắt từ biển miền Trung', 200000, 80, 'product_images/mucuong.jpg');
+    ('P001', 'Cá Hồi Na Uy', 'Cá hồi tươi ngon nhập khẩu từ Na Uy', 250000, 50, 'product_images/cahoi.jpg', 'Cá'),
+    ('P002', 'Tôm Sú Cà Mau', 'Tôm sú loại lớn từ vùng biển Cà Mau', 180000, 100, 'product_images/tomsu.jpg', 'Tôm'),
+    ('P003', 'Mực Ống', 'Mực ống tươi sống đánh bắt từ biển miền Trung', 200000, 80, 'product_images/mucuong.jpg', 'Mực');
 
 -- Dữ liệu mẫu cho Orders
 INSERT INTO Orders (user_id, total, address, phone, method)

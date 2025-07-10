@@ -10,7 +10,6 @@
       margin: 0;
       padding: 0;
       background-color: #f0f8ff;
-      display: flex;
     }
     header {
       background-color: #0077b6;
@@ -31,19 +30,43 @@
       display: flex;
       padding-top: 80px;
       width: 100%;
+      max-width: 1300px;
+      margin: auto;
     }
     .sidebar {
-      width: 200px;
+      width: 220px;
       background: #e0f7fa;
-      padding: 20px;
-      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+      padding: 24px 18px 24px 18px;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.07);
+      border-radius: 0 18px 18px 0;
+      min-height: 500px;
     }
     .sidebar h3 {
       margin-top: 0;
+      margin-bottom: 18px;
+      color: #0077b6;
+      font-size: 1.2rem;
+      letter-spacing: 1px;
     }
-    .sidebar label {
+    .category-btn {
       display: block;
-      margin: 10px 0;
+      width: 100%;
+      margin: 0 0 12px 0;
+      padding: 10px 0;
+      border: none;
+      border-radius: 16px;
+      background: #e0e7ef;
+      color: #0077b6;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: background 0.2s, color 0.2s;
+      outline: none;
+    }
+    .category-btn.active,
+    .category-btn:hover {
+      background: #0077b6;
+      color: #fff;
     }
     .section {
       flex-grow: 1;
@@ -102,6 +125,9 @@
       .products {
         grid-template-columns: repeat(2, 1fr);
       }
+      .sidebar {
+        min-height: unset;
+      }
     }
     @media (max-width: 700px) {
       .main-content {
@@ -111,6 +137,7 @@
         width: 100%;
         box-shadow: none;
         margin-bottom: 20px;
+        border-radius: 0 0 18px 18px;
       }
       .products {
         grid-template-columns: 1fr;
@@ -162,13 +189,7 @@
   <div class="main-content">
     <aside class="sidebar">
       <h3>Phân loại</h3>
-      <label><input type="checkbox" class="filter" value="Cá"> Cá</label>
-      <label><input type="checkbox" class="filter" value="Tôm"> Tôm</label>
-      <label><input type="checkbox" class="filter" value="Cua"> Cua</label>
-      <label><input type="checkbox" class="filter" value="Nghêu"> Nghêu</label>
-      <label><input type="checkbox" class="filter" value="Sò"> Sò</label>
-      <label><input type="checkbox" class="filter" value="Mực"> Mực</label>
-      <label><input type="checkbox" class="filter" value="Hàu"> Hàu</label>
+      <div id="category-btns"></div>
     </aside>
 
     <section class="section">
@@ -178,18 +199,52 @@
 
   <script>
     let allProducts = [];
+    let currentCategory = "__all__";
 
     // Lấy sản phẩm từ database qua get-products.php
     function fetchProducts() {
       fetch('get-products.php')
-        .then(res => res.json())
+        .then(res => res.json())  
         .then(products => {
           allProducts = products;
+          renderCategoryFilters(products);
           renderProducts(products);
         })
         .catch(() => {
           document.getElementById('product-list').innerHTML = '<p>Lỗi tải sản phẩm!</p>';
         });
+    }
+
+    // Tạo filter từ category (dạng nút)
+    function renderCategoryFilters(products) {
+      const btnsDiv = document.getElementById('category-btns');
+      const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
+      let html = `<button class="category-btn active" data-cat="__all__">Tất cả</button>`;
+      html += categories.map(cat => `
+        <button class="category-btn" data-cat="${cat}">${cat}</button>
+      `).join('');
+      btnsDiv.innerHTML = html;
+
+      // Gắn lại sự kiện
+      btnsDiv.querySelectorAll('.category-btn').forEach(btn => btn.addEventListener('click', handleCategoryBtn));
+    }
+
+    function handleCategoryBtn(e) {
+      // Bỏ active cho các nút khác
+      document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.style.background = "#e0e7ef";
+        btn.style.color = "#0077b6";
+      });
+      // Đánh dấu nút đang chọn
+      e.target.classList.add('active');
+      e.target.style.background = "#0077b6";
+      e.target.style.color = "#fff";
+      // Lọc sản phẩm
+      const cat = e.target.dataset.cat;
+      currentCategory = cat;
+      const filtered = cat === "__all__" ? allProducts : allProducts.filter(p => p.category === cat);
+      renderProducts(filtered);
     }
 
     function renderProducts(list) {
@@ -240,18 +295,8 @@
       });
     }
 
-    function handleFilterChange(event) {
-      document.querySelectorAll('.filter').forEach(cb => {
-        if (cb !== event.target) cb.checked = false;
-      });
-      const checked = Array.from(document.querySelectorAll('.filter:checked')).map(cb => cb.value.toLowerCase());
-      const filtered = allProducts.filter(p => checked.some(c => p.name.toLowerCase().includes(c)));
-      renderProducts(checked.length ? filtered : allProducts);
-    }
-
     window.onload = () => {
       fetchProducts();
-      document.querySelectorAll('.filter').forEach(cb => cb.addEventListener('change', handleFilterChange));
     }
   </script>
 </body>
