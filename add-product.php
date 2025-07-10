@@ -23,8 +23,10 @@ if (!$name || !$price || !$category) {
 }
 
 // Kiểm tra trùng tên sản phẩm
-$check = $conn->prepare("SELECT product_id FROM Products WHERE name = ?");
-$check->bind_param("s", $name);
+// Chuẩn hóa tên sản phẩm để kiểm tra trùng (không phân biệt hoa thường, loại bỏ khoảng trắng)
+$normalized_name = mb_strtolower(trim(preg_replace('/\s+/', ' ', $name)), 'UTF-8');
+$check = $conn->prepare("SELECT product_id FROM Products WHERE LOWER(TRIM(name)) = ?");
+$check->bind_param("s", $normalized_name);
 $check->execute();
 $check->store_result();
 if ($check->num_rows > 0) {
@@ -45,8 +47,8 @@ if ($row = $result->fetch_assoc()) {
 }
 
 // Thêm sản phẩm chưa có ảnh
-$stmt = $conn->prepare("INSERT INTO Products (product_id, name, description, price, quantity) VALUES (?, ?, ?, ?, 100)");
-$stmt->bind_param("sssd", $newId, $name, $description, $price);
+$stmt = $conn->prepare("INSERT INTO Products (product_id, name, description, price, quantity, category) VALUES (?, ?, ?, ?, 100, ?)");
+$stmt->bind_param("ssdds", $newId, $name, $description, $price, $category);
 
 if ($stmt->execute()) {
     echo json_encode(['success' => true, 'product_id' => $newId]);

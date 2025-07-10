@@ -50,11 +50,11 @@
             Loại sản phẩm
             <select id="add-category" required>
               <option value="">--Chọn loại sản phẩm--</option>
-              <option value="Tôm">Tôm</option>
-              <option value="Cá">Cá</option>
+              <!-- Các option sẽ được load tự động bằng JS -->
             </select>
           </label>
-            >Tên sản phẩm
+          <label>
+            Tên sản phẩm
             <input type="text" id="add-name" required />
           </label>
           <label>
@@ -66,8 +66,8 @@
               <option value="Bé">Bé</option>
             </select>
           </label>
-          <label
-            >Giá
+          <label>
+            Giá
             <div style="display: flex; align-items: center">
               <input
                 type="text"
@@ -81,8 +81,8 @@
               <span style="margin-left: 4px">đ</span>
             </div>
           </label>
-          <label
-            >Chọn ảnh
+          <label>
+            Chọn ảnh
             <input type="file" id="add-img-file" accept="image/*" required />
           </label>
           <img
@@ -91,10 +91,6 @@
             alt="Xem trước ảnh"
             style="max-width: 100px; display: none; margin-top: 8px"
           />
-          <label
-            >Mô tả
-            <input type="text" id="add-category" />
-          </label>
           <div class="modal-actions">
             <button type="button" onclick="closeAddModal()">Hủy</button>
             <button type="submit" class="edit-btn">Thêm</button>
@@ -188,13 +184,14 @@
         <th><input type="checkbox" id="select-all"></th>
         <th>Ảnh</th>
         <th>Tên sản phẩm</th>
+        <th>Loại</th> <!-- Thêm cột này -->
         <th>Giá</th>
-        <th>Số lượng</th> <!-- Thêm cột này -->
+        <th>Số lượng</th>
         <th>Mã SP</th>
         <th>Sửa</th>
         <th>Xóa</th>
         <th>Kích cỡ</th>
-        </tr>
+      </tr>
     </thead>
     <tbody>
       ${products
@@ -204,8 +201,9 @@
           <td><input type="checkbox" class="delete-checkbox" value="${p.id}"></td>
           <td><img src="${p.img ? p.img : "product-image.php?id=" + encodeURIComponent(p.id)}" alt="${p.name}" style="max-width:80px"></td>
           <td class="product-name">${p.name}</td>
+          <td>${p.category || ""}</td> <!-- Hiển thị category -->
           <td>${p.price ? Math.round(p.price).toLocaleString("vi-VN") : ""}đ</td>
-          <td>${p.quantity ?? ""}</td> <!-- Hiển thị số lượng -->
+          <td>${p.quantity ?? ""}</td>
           <td>${p.id}</td>
           <td>
             <button onclick="openEditModal('${p.id}')" class="edit-btn">Sửa</button>
@@ -404,6 +402,23 @@
         deleteSelectedProducts;
 
       fetchProducts();
+
+      // Tải danh sách category có sẵn từ database
+      function loadCategories() {
+        fetch("get-categories.php")
+          .then(res => res.json())
+          .then(categories => {
+            const select = document.getElementById("add-category");
+            select.innerHTML = '<option value="">--Chọn loại sản phẩm--</option>';
+            categories.forEach(cat => {
+              const option = document.createElement("option");
+              option.value = cat;
+              option.textContent = cat;
+              select.appendChild(option);
+            });
+          });
+      }
+      loadCategories();
 
       function openEditModal(productId) {
         const p = productsCache.find((x) => String(x.id) === String(productId));
