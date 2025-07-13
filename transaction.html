@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chuyển khoản thanh toán</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: #f6fcff;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px #0001;
+      padding: 32px 24px 24px 24px;
+      text-align: center;
+      max-width: 400px;
+    }
+    .qr-img {
+      width: 260px;
+      height: 260px;
+      object-fit: contain;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      margin-bottom: 18px;
+      background: #fafbfc;
+    }
+    .note {
+      color: #0077b6;
+      font-size: 1.1em;
+      margin-bottom: 8px;
+    }
+    .back-link {
+      display: inline-block;
+      margin-top: 18px;
+      color: #0077b6;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Chuyển khoản thanh toán</h2>
+    <div class="note">Quét mã QR hoặc chuyển khoản theo thông tin bên dưới</div>
+    <img src="images/qr-bank.png" alt="QR chuyển khoản" class="qr-img" />
+    <div style="margin: 12px 0 4px 0;">
+      <b>Ngân hàng:</b> Vietcombank<br>
+      <b>Số tài khoản:</b> 0123456789<br>
+      <b>Chủ tài khoản:</b> Nguyễn Văn A<br>
+      <b>Nội dung:</b> [Số điện thoại hoặc mã đơn hàng]
+    </div>
+    <a href="webthuysanthaison.html" class="back-link">← Về trang chủ</a>
+  </div>
+</body>
+</html>
