@@ -35,6 +35,14 @@
           Quản lý tài khoản
         </button>
       </div>
+      <div style="margin: 16px 0;">
+        <input
+          type="text"
+          id="search-product-input"
+          placeholder="Tìm kiếm sản phẩm theo tên, loại, mã..."
+          style="width: 300px; padding: 6px"
+        />
+      </div>
       <div id="admin-products"></div>
     </div>
 
@@ -52,6 +60,21 @@
               <option value="">--Chọn loại sản phẩm--</option>
               <!-- Các option sẽ được load tự động bằng JS -->
             </select>
+            <div style="margin-top:6px;">
+              <input
+                type="text"
+                id="new-category-input"
+                placeholder="Thêm loại mới..."
+                style="width:60%; padding:4px"
+              />
+              <button
+                type="button"
+                id="add-category-btn"
+                style="padding:4px 10px"
+              >
+                Thêm loại
+              </button>
+            </div>
           </label>
           <label>
             Tên sản phẩm
@@ -416,9 +439,25 @@
               option.textContent = cat;
               select.appendChild(option);
             });
+            renderCategoryList();
           });
       }
       loadCategories();
+
+      function renderCategoryList() {
+  const select = document.getElementById("add-category");
+  const listDiv = document.getElementById("category-list");
+  let html = "";
+  for (let i = 1; i < select.options.length; i++) { // Bỏ option đầu
+    const cat = select.options[i].value;
+    html += `<span style="display:inline-block;margin:2px 8px 2px 0;padding:2px 8px;border:1px solid #ccc;border-radius:12px;">
+      ${cat}
+      <button type="button" style="margin-left:4px;color:#a8071a;border:none;background:none;cursor:pointer;font-weight:bold"
+        onclick="removeCategory('${cat.replace(/'/g, "\\'")}')">×</button>
+    </span>`;
+  }
+  listDiv.innerHTML = html;
+}
 
       function openEditModal(productId) {
         const p = productsCache.find((x) => String(x.id) === String(productId));
@@ -510,6 +549,53 @@
             }
           });
       }
+
+      // Thêm loại sản phẩm mới
+      document.getElementById("add-category-btn").onclick = function () {
+  const input = document.getElementById("new-category-input");
+  const select = document.getElementById("add-category");
+  const newCat = input.value.trim();
+  if (!newCat) {
+    alert("Vui lòng nhập tên loại sản phẩm mới!");
+    return;
+  }
+  for (let i = 0; i < select.options.length; i++) {
+    if (select.options[i].value.toLowerCase() === newCat.toLowerCase()) {
+      alert("Loại sản phẩm này đã tồn tại!");
+      return;
+    }
+  }
+  const option = document.createElement("option");
+  option.value = newCat;
+  option.textContent = newCat;
+  select.appendChild(option);
+  select.value = newCat;
+  input.value = "";
+  renderCategoryList();
+};
+
+window.removeCategory = function(cat) {
+  const select = document.getElementById("add-category");
+  for (let i = 1; i < select.options.length; i++) {
+    if (select.options[i].value === cat) {
+      select.remove(i);
+      break;
+    }
+  }
+  renderCategoryList();
+  // Nếu đang chọn loại vừa xóa thì reset select
+  if (select.value === cat) select.value = "";
+};
+
+document.getElementById("search-product-input").addEventListener("input", function () {
+  const keyword = this.value.trim().toLowerCase();
+  const filtered = productsCache.filter(p =>
+    (p.name && p.name.toLowerCase().includes(keyword)) ||
+    (p.category && p.category.toLowerCase().includes(keyword)) ||
+    (p.id && String(p.id).toLowerCase().includes(keyword))
+  );
+  renderAdminProducts(filtered);
+});
     </script>
   </body>
 </html>
