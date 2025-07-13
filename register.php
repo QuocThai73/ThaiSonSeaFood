@@ -51,21 +51,26 @@ if ($stmt->num_rows > 0) {
 }
 $stmt->close();
 
-// Tạo user_id tự động (ví dụ: U003)
-$result = $conn->query("SELECT user_id FROM Users ORDER BY user_id DESC LIMIT 1");
-if ($row = $result->fetch_assoc()) {
-    $lastId = intval(substr($row['user_id'], 1));
-    $newId = 'U' . str_pad($lastId + 1, 3, '0', STR_PAD_LEFT);
-} else {
-    $newId = 'U001';
+// Lấy tất cả user_id hiện có
+$result = $conn->query("SELECT user_id FROM Users ORDER BY user_id ASC");
+$usedIds = [];
+while ($row = $result->fetch_assoc()) {
+    $usedIds[] = intval(substr($row['user_id'], 1));
 }
 
-// Không mã hóa mật khẩu
-$plainPassword = $password;
+// Tìm số nhỏ nhất chưa dùng
+$newNum = 1;
+while (in_array($newNum, $usedIds)) {
+    $newNum++;
+}
+$newId = 'U' . str_pad($newNum, 3, '0', STR_PAD_LEFT);
+
+// Mã hóa mật khẩu
+$hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
 // Thêm user mới
 $stmt = $conn->prepare("INSERT INTO Users (user_id, username, password, email) VALUES (?, ?, ?, ?)");
-$stmt->bind_param("ssss", $newId, $username, $plainPassword, $email);
+$stmt->bind_param("ssss", $newId, $username, $hashedPassword, $email);
 
 if ($stmt->execute()) {
     echo json_encode(['success' => true, 'message' => 'Đăng ký thành công!']);

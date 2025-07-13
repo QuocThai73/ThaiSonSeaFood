@@ -69,10 +69,13 @@
       }
 
       function fetchOrders() {
-        fetch("get-orders.php")
+        fetch("get-orders.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: localStorage.getItem("user_id") })
+        })
           .then((res) => res.json())
           .then((orders) => {
-            // Đã xoá alert thông báo kết nối thành công
             renderOrders(orders);
           });
       }
