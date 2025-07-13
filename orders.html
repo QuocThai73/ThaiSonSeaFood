@@ -124,6 +124,7 @@
             <th>Địa chỉ</th>
             <th>Điện thoại</th>
             <th>Phương thức</th>
+            <th>Trạng thái</th>
           </tr>
           <tr>
             <td>${order.order_id}</td>
@@ -132,9 +133,14 @@
             <td>${order.address}</td>
             <td>${order.phone}</td>
             <td>${order.method}</td>
+            <td>
+              <span style="color:${order.status === 'Đã giao' ? '#28a745' : '#faad14'};font-weight:600">
+                ${order.status === 'Đã giao' ? 'Đã giao' : 'Chờ duyệt'}
+              </span>
+            </td>
           </tr>
           <tr class="order-detail">
-            <td colspan="6">
+            <td colspan="7">
               <b>Chi tiết:</b>
               <ul>
                 ${order.details.map(d => `

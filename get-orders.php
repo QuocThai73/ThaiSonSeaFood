@@ -12,7 +12,8 @@ if ($user_id === 'U001') {
     $sql = "SELECT o.order_id, o.user_id, u.username, o.order_date, o.total, 
                    IFNULL(o.address, '') AS address, 
                    IFNULL(o.phone, '') AS phone, 
-                   IFNULL(o.method, '') AS method
+                   IFNULL(o.method, '') AS method,
+                   IFNULL(o.status, 'Chờ duyệt') AS status
             FROM Orders o
             JOIN Users u ON o.user_id = u.user_id
             ORDER BY o.order_id DESC";
@@ -22,7 +23,8 @@ if ($user_id === 'U001') {
     $sql = "SELECT o.order_id, o.user_id, u.username, o.order_date, o.total, 
                    IFNULL(o.address, '') AS address, 
                    IFNULL(o.phone, '') AS phone, 
-                   IFNULL(o.method, '') AS method
+                   IFNULL(o.method, '') AS method,
+                   IFNULL(o.status, 'Chờ duyệt') AS status
             FROM Orders o
             JOIN Users u ON o.user_id = u.user_id
             WHERE o.user_id = ?

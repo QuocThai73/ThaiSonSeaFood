@@ -96,6 +96,7 @@
               <th>Địa chỉ</th>
               <th>SĐT</th>
               <th>Phương thức</th>
+              <th>Trạng thái</th>
               <th>Chi tiết</th>
               <th>Thao tác</th>
             </tr>
@@ -107,32 +108,20 @@
             <tr>
               <td>${o.order_id ?? ""}</td>
               <td>${o.username ?? ""} (${o.user_id ?? ""})</td>
-              <td>${
-                o.order_date
-                  ? new Date(o.order_date).toLocaleString("vi-VN")
-                  : ""
-              }</td>
-              <td>${
-                o.total ? Number(o.total).toLocaleString("vi-VN") + "đ" : ""
-              }</td>
+              <td>${o.order_date ? new Date(o.order_date).toLocaleString("vi-VN") : ""}</td>
+              <td>${o.total ? Number(o.total).toLocaleString("vi-VN") + "đ" : ""}</td>
               <td>${o.address ?? ""}</td>
               <td>${o.phone ?? ""}</td>
               <td>${o.method ?? ""}</td>
+              <td>${o.status ?? "Chờ duyệt"}</td>
               <td>
-                <button onclick="showDetails(${
-                  o.order_id
-                })" class="edit-btn">Xem</button>
+                <button onclick="showDetails(${o.order_id})" class="edit-btn">Xem</button>
               </td>
               <td>
-                <button onclick="editOrder(${
-                  o.order_id
-                })" class="edit-btn">Sửa</button>
-                <button onclick="deleteOrder(${
-                  o.order_id
-                })" class="delete-btn">Xoá</button>
-                <button onclick="printOrder(${
-                  o.order_id
-                })" class="print-btn">In</button>
+                <button onclick="editOrder(${o.order_id})" class="edit-btn">Sửa</button>
+                <button onclick="deleteOrder(${o.order_id})" class="delete-btn">Xoá</button>
+                <button onclick="printOrder(${o.order_id})" class="print-btn">In</button>
+                <button onclick="approveOrder('${o.order_id}')" class="approve-btn">Duyệt</button>
               </td>
             </tr>
             <tr id="details-${
@@ -298,6 +287,26 @@
           printWindow.print();
         }
       };
+
+      window.approveOrder = function(orderId) {
+  if (confirm("Xác nhận đơn hàng #" + orderId + " đã giao cho khách?")) {
+    fetch("approve-order.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ order_id: orderId })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert("Đã duyệt đơn hàng!");
+          fetchOrders();
+        } else {
+          alert("Duyệt thất bại: " + (data.message || ""));
+        }
+      })
+      .catch(() => alert("Không thể kết nối server!"));
+  }
+};
 
       fetchOrders();
     </script>
