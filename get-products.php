@@ -8,7 +8,8 @@ if ($conn->connect_error) {
   exit;
 }
 
-$sql = "SELECT product_id, name, description, price, img, category FROM Products";
+// Thêm quantity vào SELECT
+$sql = "SELECT product_id, name, description, price, img, category, quantity FROM Products";
 $result = $conn->query($sql);
 
 $products = [];
@@ -20,7 +21,8 @@ if ($result && $result->num_rows > 0) {
       'description' => $row['description'],
       'price' => $row['price'],
       'img' => $row['img'],
-      'category' => $row['category'] // Đảm bảo có dòng này
+      'category' => $row['category'],
+      'quantity' => $row['quantity'] // Thêm dòng này
     ];
   }
 }
