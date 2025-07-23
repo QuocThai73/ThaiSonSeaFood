@@ -320,12 +320,13 @@
         const logoutBtn = document.getElementById("logoutBtn");
         const adminBtn = document.getElementById("adminBtn");
         const ordersBtn = document.getElementById("ordersBtn");
+        const cartIcon = document.querySelector(".cart-icon");
+
         if (userId) {
           document
             .querySelectorAll(".dropdown")
             .forEach((el) => (el.style.display = "none"));
           if (logoutBtn) logoutBtn.style.display = "inline-block";
-          // Hiện nút quản lý nếu là admin
           if (userId === "U001" && adminBtn) {
             adminBtn.style.display = "inline-block";
             if (ordersBtn) ordersBtn.style.display = "none";
@@ -333,10 +334,22 @@
             if (adminBtn) adminBtn.style.display = "none";
             if (ordersBtn) ordersBtn.style.display = "inline-block";
           }
+          // Enable cart
+          if (cartIcon) {
+            cartIcon.style.pointerEvents = "auto";
+            cartIcon.style.opacity = "1";
+            cartIcon.title = "";
+          }
         } else {
           if (logoutBtn) logoutBtn.style.display = "none";
           if (adminBtn) adminBtn.style.display = "none";
           if (ordersBtn) ordersBtn.style.display = "none";
+          // Disable cart
+          if (cartIcon) {
+            cartIcon.style.pointerEvents = "none";
+            cartIcon.style.opacity = "0.5";
+            cartIcon.title = "Vui lòng đăng nhập để sử dụng giỏ hàng";
+          }
         }
       };
 
